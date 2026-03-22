@@ -1,24 +1,10 @@
 ---
-import "../styles/global.css";
-
 interface Props {
   title: string;
   description?: string;
-  current?: "about" | "docs" | "status" | "updates";
 }
 
-const {
-  title,
-  description = "GSHS.app 상태 페이지",
-  current = "status",
-} = Astro.props;
-
-const navLinks = [
-  { key: "about", label: "About", href: "https://kkwjk2718.github.io/gshs-about-pages/" },
-  { key: "docs", label: "Docs", href: "https://kkwjk2718.github.io/gshs-docs-pages/" },
-  { key: "status", label: "Status", href: "https://kkwjk2718.github.io/gshs-status-pages/" },
-  { key: "updates", label: "Updates", href: "https://kkwjk2718.github.io/gshs-updates-pages/" },
-];
+const { title, description = "GSHS.app Status 페이지는 현재 deprecated 상태입니다." } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,40 +15,110 @@ const navLinks = [
     <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" type="image/png" href="/school-mark.png" />
+    <style is:global>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 32%), #020202;
+        color: #f5f5f5;
+        font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 32px 20px;
+      }
+
+      .panel {
+        width: min(100%, 680px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.03);
+        padding: 28px;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      p {
+        margin: 16px 0 0;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 16px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #fff;
+        text-decoration: none;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+      }
+
+      .button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.28);
+      }
+
+      .button.secondary {
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .caption {
+        margin-top: 24px;
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 12px;
+      }
+    </style>
   </head>
   <body>
-    <header class="site-shell">
-      <div class="topbar">
-        <a class="brand" href="https://gshs.app">
-          <img src="/school-mark.png" alt="경남과학고등학교 로고" />
-          <div>
-            <strong>GSHS.app Status</strong>
-            <span>gshs.app 본체 상태 전용 공개 페이지</span>
-          </div>
-        </a>
-
-        <nav class="nav" aria-label="보조 사이트 탐색">
-          {
-            navLinks.map((link) => (
-              <a
-                href={link.href}
-                class:list={["nav-link", current === link.key && "is-current"]}
-              >
-                {link.label}
-              </a>
-            ))
-          }
-        </nav>
-      </div>
-    </header>
-
-    <main class="site-shell">
-      <slot />
+    <main>
+      <section class="panel">
+        <p class="eyebrow">Deprecated</p>
+        <h1>Status 페이지는 현재 운영하지 않습니다.</h1>
+        <p>
+          기존 GitHub Pages 기반 상태 페이지는 잠시 중단되었습니다. 운영 상태가 필요하면
+          메인 서비스와 운영 도구를 기준으로 다시 정리할 예정입니다.
+        </p>
+        <div class="actions">
+          <a class="button" href="https://gshs.app">gshs.app 바로가기</a>
+          <a class="button secondary" href="https://github.com/kkwjk2718/gshsapp">메인 저장소</a>
+        </div>
+        <p class="caption">별도 상태 페이지는 나중에 다시 구성될 때까지 비활성 상태로 유지됩니다.</p>
+      </section>
     </main>
-
-    <footer class="site-shell footer">
-      <p>경남과학고등학교 정보부 · IEUM</p>
-      <p>마지막 점검 결과는 GitHub Pages 정적 데이터로 제공합니다.</p>
-    </footer>
   </body>
 </html>
