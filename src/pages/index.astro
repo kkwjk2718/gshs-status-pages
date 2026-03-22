@@ -1,0 +1,118 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="Status | GSHS.app"
+  description="gshs.app 본체 상태와 API 헬스 체크 결과를 보여주는 공개 상태 페이지"
+  current="status"
+>
+  <section class="hero">
+    <span class="eyebrow">Status</span>
+    <h1>GSHS.app 서비스 상태</h1>
+    <p>
+      이 페이지는 GitHub Pages에 정적으로 배포되어 운영 서버와 분리되어 있습니다. 서버에 문제가
+      생겨도 마지막 점검 결과는 계속 확인할 수 있습니다.
+    </p>
+  </section>
+
+  <section class="status-banner">
+    <div id="overall-chip" class="status-chip unknown">상태 불러오는 중</div>
+    <h2 id="overall-title">최근 점검 결과를 불러오는 중입니다.</h2>
+    <p id="overall-summary" class="status-summary">잠시만 기다려 주세요.</p>
+    <p id="generated-at" class="status-summary"></p>
+  </section>
+
+  <div class="status-grid">
+    <section class="check-card">
+      <h3>메인 페이지</h3>
+      <p class="check-meta">https://gshs.app/</p>
+      <div id="homepage-status" class="check-value">-</div>
+      <p id="homepage-meta" class="check-meta"></p>
+    </section>
+
+    <section class="check-card">
+      <h3>헬스 엔드포인트</h3>
+      <p class="check-meta">https://gshs.app/api/health</p>
+      <div id="health-status" class="check-value">-</div>
+      <p id="health-meta" class="check-meta"></p>
+    </section>
+  </div>
+
+  <section class="history-card">
+    <h2>최근 상태 이력</h2>
+    <p>최근 30일 기준으로 누적된 상태 이력을 표시합니다.</p>
+    <div id="history-list" class="history-list"></div>
+  </section>
+
+  <script type="module">
+    const current = await fetch("/data/current.json", { cache: "no-store" }).then((response) => response.json());
+    const history = await fetch("/data/history.json", { cache: "no-store" }).then((response) => response.json());
+
+    const statusLabels = {
+      operational: "정상",
+      degraded: "주의",
+      outage: "장애",
+      unknown: "미확인",
+    };
+
+    const formatTimestamp = (value) => {
+      if (!value) return "점검 시각 없음";
+      return new Intl.DateTimeFormat("ko-KR", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Seoul",
+      }).format(new Date(value));
+    };
+
+    const applyChip = (element, status) => {
+      element.className = `status-chip ${status ?? "unknown"}`;
+      element.textContent = `현재 상태 · ${statusLabels[status] ?? "미확인"}`;
+    };
+
+    applyChip(document.getElementById("overall-chip"), current.overallStatus);
+    document.getElementById("overall-title").textContent =
+      current.overallStatus === "operational"
+        ? "서비스가 정상 응답 중입니다."
+        : current.overallStatus === "degraded"
+          ? "일부 점검 항목에서 주의 상태가 감지되었습니다."
+          : current.overallStatus === "outage"
+            ? "서비스 응답에 문제가 감지되었습니다."
+            : "상태 정보를 아직 확인하지 못했습니다.";
+    document.getElementById("overall-summary").textContent = current.summary ?? "요약 정보가 없습니다.";
+    document.getElementById("generated-at").textContent = `마지막 점검: ${formatTimestamp(current.generatedAt)}`;
+
+    document.getElementById("homepage-status").textContent =
+      `${statusLabels[current.homepage?.status] ?? "미확인"}${current.homepage?.statusCode ? ` · HTTP ${current.homepage.statusCode}` : ""}`;
+    document.getElementById("homepage-meta").textContent =
+      current.homepage?.responseTimeMs != null
+        ? `응답 시간 ${current.homepage.responseTimeMs}ms`
+        : "응답 시간 정보 없음";
+
+    const healthTextParts = [statusLabels[current.health?.status] ?? "미확인"];
+    if (current.health?.statusCode) healthTextParts.push(`HTTP ${current.health.statusCode}`);
+    if (current.health?.version) healthTextParts.push(current.health.version);
+    document.getElementById("health-status").textContent = healthTextParts.join(" · ");
+    document.getElementById("health-meta").textContent =
+      current.health?.ok === true
+        ? `서비스명 ${current.health.service ?? "gshsapp"} · 응답 시간 ${current.health.responseTimeMs ?? "-"}ms`
+        : "헬스 응답이 비정상이거나 읽을 수 없습니다.";
+
+    const historyList = document.getElementById("history-list");
+    const recentItems = Array.isArray(history) ? history.slice(-20).reverse() : [];
+    if (recentItems.length === 0) {
+      historyList.innerHTML = '<div class="history-row"><strong>표시할 이력이 아직 없습니다.</strong></div>';
+    } else {
+      historyList.innerHTML = recentItems
+        .map(
+          (item) => `
+            <div class="history-row">
+              <strong>${formatTimestamp(item.timestamp)}</strong>
+              <span>${statusLabels[item.overallStatus] ?? "미확인"} · 메인 ${statusLabels[item.homepageStatus] ?? "미확인"} · 헬스 ${statusLabels[item.healthStatus] ?? "미확인"}${item.version ? ` · ${item.version}` : ""}</span>
+            </div>
+          `,
+        )
+        .join("");
+    }
+  </script>
+</SiteLayout>

@@ -1,0 +1,19 @@
+{
+  "generatedAt": "2026-03-22T08:19:14.476Z",
+  "overallStatus": "operational",
+  "summary": "서비스가 정상 응답 중이며 현재 버전은 sha-8fc7c71ded729b032da8714055e94c81f591da45입니다.",
+  "version": "sha-8fc7c71ded729b032da8714055e94c81f591da45",
+  "homepage": {
+    "status": "operational",
+    "statusCode": 200,
+    "responseTimeMs": 197
+  },
+  "health": {
+    "status": "operational",
+    "statusCode": 200,
+    "responseTimeMs": 9,
+    "ok": true,
+    "service": "gshsapp",
+    "version": "sha-8fc7c71ded729b032da8714055e94c81f591da45"
+  }
+}

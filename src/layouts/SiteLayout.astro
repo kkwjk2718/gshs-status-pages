@@ -1,0 +1,68 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  current?: "about" | "docs" | "status" | "updates";
+}
+
+const {
+  title,
+  description = "GSHS.app 상태 페이지",
+  current = "status",
+} = Astro.props;
+
+const navLinks = [
+  { key: "about", label: "About", href: "https://about.gshs.app" },
+  { key: "docs", label: "Docs", href: "https://docs.gshs.app" },
+  { key: "status", label: "Status", href: "https://status.gshs.app" },
+  { key: "updates", label: "Updates", href: "https://updates.gshs.app" },
+];
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/png" href="/school-mark.png" />
+  </head>
+  <body>
+    <header class="site-shell">
+      <div class="topbar">
+        <a class="brand" href="https://gshs.app">
+          <img src="/school-mark.png" alt="경남과학고등학교 로고" />
+          <div>
+            <strong>GSHS.app Status</strong>
+            <span>gshs.app 본체 상태 전용 점검 페이지</span>
+          </div>
+        </a>
+
+        <nav class="nav" aria-label="보조 사이트 탐색">
+          {
+            navLinks.map((link) => (
+              <a
+                href={link.href}
+                class:list={["nav-link", current === link.key && "is-current"]}
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main class="site-shell">
+      <slot />
+    </main>
+
+    <footer class="site-shell footer">
+      <p>경남과학고등학교 정보부 · IEUM</p>
+      <p>마지막 확인은 GitHub Pages 정적 데이터로 제공됩니다.</p>
+    </footer>
+  </body>
+</html>
